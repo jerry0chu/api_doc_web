@@ -11,7 +11,13 @@
               <!--              <a-button type="primary" shape="circle" icon="folder"></a-button>-->
               <el-button type="success" icon="el-icon-view" circle></el-button>
               <el-button type="primary" icon="el-icon-edit" circle @click="editProject(pro)"></el-button>
-              <el-button type="info" icon="el-icon-more-outline" circle></el-button>
+              <el-dropdown trigger="click" @command="handleCommand">
+                <el-button type="info" icon="el-icon-more-outline" circle></el-button>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item :command="pro.projId">delete project</el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+
             </template>
             <a-card-meta :title="pro.projName" :description="pro.projDesc">
             </a-card-meta>
@@ -91,6 +97,27 @@
                 this.modalTitle = "Edit Project"
                 this.project = JSON.parse(JSON.stringify(pro))
                 this.visible = true
+            },
+            handleCommand(command)
+            {
+                if (new RegExp("\\d+").test(command))
+                {
+                    let params = {
+                        id: command
+                    }
+                    let self = this
+                    http.post("/project/deleteProject", params).then(res =>
+                    {
+                        if (res.data.code == 200)
+                        {
+                            let index = self.projectList.map(e => e.projId).indexOf(command)
+                            self.projectList.splice(index, 1)
+                            self.$message.success("delete project successfully")
+                        }
+                        else
+                           self.$message.error("delete failed")
+                    })
+                }
             },
             handleOk(e)
             {
