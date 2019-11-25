@@ -1,18 +1,19 @@
 <template>
   <a-layout id="components-layout-demo-custom-trigger">
-    <a-layout-sider :trigger="null" collapsible v-model="collapsed" style="max-width: 300px;min-width: 300px;width: 300px">
+    <a-layout-sider :trigger="null" collapsible v-model="collapsed"
+                    style="max-width: 300px;min-width: 300px;width: 300px">
       <div class="logo"/>
-      <a-menu theme="dark" mode="inline" :defaultSelectedKeys="['1']" >
+      <a-menu theme="dark" mode="inline" :defaultSelectedKeys="['1']">
         <a-menu-item key="1">
-          <a-icon type="codepen" />
+          <a-icon type="codepen"/>
           <span>客户管理</span>
         </a-menu-item>
         <a-menu-item key="2">
-         <a-icon type="codepen" />
+          <a-icon type="codepen"/>
           <span>nav 2</span>
         </a-menu-item>
         <a-menu-item key="3">
-         <a-icon type="codepen" />
+          <a-icon type="codepen"/>
           <span>nav 3</span>
         </a-menu-item>
       </a-menu>
@@ -25,6 +26,7 @@
         :style="contentSetting"
       >
         Content
+        {{this.$store.state.currentProjId}}
       </a-layout-content>
     </a-layout>
   </a-layout>
@@ -34,8 +36,7 @@
         name: "FrameWork",
         data()
         {
-            let minHeight= document.documentElement.clientHeight*0.88+"px"
-            console.log(minHeight)
+            let minHeight = document.documentElement.clientHeight * 0.88 + "px"
             return {
                 collapsed: false,
                 contentSetting: {

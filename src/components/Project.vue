@@ -9,7 +9,7 @@
             <!--            #41d1ff-->
             <template class="ant-card-actions" slot="actions">
               <!--              <a-button type="primary" shape="circle" icon="folder"></a-button>-->
-              <el-button type="success" icon="el-icon-view" circle></el-button>
+              <el-button type="success" icon="el-icon-view" circle @click="openProject(pro)"></el-button>
               <el-button type="primary" icon="el-icon-edit" circle @click="editProject(pro)"></el-button>
               <el-dropdown trigger="click" @command="handleCommand">
                 <el-button type="info" icon="el-icon-more-outline" circle></el-button>
@@ -17,7 +17,6 @@
                   <el-dropdown-item :command="pro.projId">delete project</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
-
             </template>
             <a-card-meta :title="pro.projName" :description="pro.projDesc">
             </a-card-meta>
@@ -87,6 +86,12 @@
                     }
                 });
             },
+            openProject(pro)
+            {
+                this.$store.commit("setCurrentProjId",pro.projId)
+              this.$router.push("/framework")
+
+            },
             addProject()
             {
                 this.modalTitle = "Add Project"
@@ -113,9 +118,8 @@
                             let index = self.projectList.map(e => e.projId).indexOf(command)
                             self.projectList.splice(index, 1)
                             self.$message.success("delete project successfully")
-                        }
-                        else
-                           self.$message.error("delete failed")
+                        } else
+                            self.$message.error("delete failed")
                     })
                 }
             },
