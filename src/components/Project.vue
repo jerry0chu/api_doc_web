@@ -81,7 +81,6 @@
                 {
                     if (res.data.code == 200)
                     {
-                        this.$message.success("load project successfully")
                         this.projectList = res.data.data
                     }
                 });
