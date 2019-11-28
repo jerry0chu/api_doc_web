@@ -75,11 +75,23 @@
         </el-form-item>
       </el-form>
     </a-modal>
+
+    <a-modal title="Add Api" v-model="apiVisible" @ok="handleApiOk">
+      <el-form label-position="right" label-width="100px" :model="api" :rules="apiRules" ref="apiRuleForm">
+        <el-form-item label="Api Name" prop="apiName">
+          <el-input v-model="api.apiName"></el-input>
+        </el-form-item>
+        <el-form-item label="Api Type" prop="apiType">
+          <el-input v-model="api.apiType"></el-input>
+        </el-form-item>
+      </el-form>
+    </a-modal>
   </div>
 
 </template>
 <script>
     import http from "@/util/http.js";
+    import check from "@/util/check.js";
 
     export default {
         name: "FrameWork",
@@ -101,12 +113,23 @@
                     modName: "",
                     modDesc: ""
                 },
-
                 moduleRules: {
                     modName: [
                         {required: true, message: 'please input module name', trigger: 'trigger'},
+                        {validator: check.checkModName, trigger: 'blur'}
                     ],
-                }
+                },
+                api: {
+                    apiName: "",
+                    apiType: ""
+                },
+                apiRules: {
+                    apiName: [
+                        {required: true, message: 'please input api name', trigger: 'trigger'},
+                        {validator: check.checkApiName, trigger: 'blur'}
+                    ],
+                },
+                apiVisible: false,
             };
         },
         computed: {
@@ -119,6 +142,11 @@
             },
         },
         methods: {
+
+            handleApiOk()
+            {
+
+            },
             addModule()
             {
                 this.module.modName = ""
@@ -133,11 +161,9 @@
                     {
                         if (this.moduleTitle == "Add Module")
                             this.module.modId = -1
-                        console.log("addOrEditModule", this.module)
                         let self = this
                         http.post("/module/addOrEditModule", this.module).then(res =>
                         {
-                            console.log(res.data)
                             if (res.data.code == 200)
                             {
                                 let mod = res.data.data
@@ -147,7 +173,6 @@
                                     self.modApiList.push({modName: mod.modName, modId: mod.modId, apiList: []})
                                 } else
                                 {
-                                    console.log(self.modApiList)
                                     let index = self.modApiList.map(m => m.modId).indexOf(self.module.modId)
                                     self.modApiList[index].modName = JSON.parse(JSON.stringify(self.module)).modName
                                     self.$message.success("edit successfully")
@@ -167,7 +192,7 @@
             },
             addApi(modId)
             {
-
+                this.apiVisible = true
             },
             editModule(modId)
             {
@@ -175,7 +200,6 @@
                 let params = {
                     id: modId
                 }
-                console.log(params)
                 http.post("/module/getModule", params).then(res =>
                 {
                     if (res.data.code == 200)
@@ -238,10 +262,7 @@
                 http.post("/module/getModApi", params).then(res =>
                 {
                     if (res.data.code == 200)
-                    {
-                        console.log("self.modApiList", res.data.data)
                         self.modApiList = res.data.data;
-                    }
                 });
             }
         },
