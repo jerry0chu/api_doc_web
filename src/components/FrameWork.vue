@@ -10,7 +10,8 @@
                             class="inputClass"/>
           </a-col>
           <a-col :span="2">
-            <a-button shape="circle" type="primary" icon="plus" style="margin-top: 8px" @click="addModule"></a-button>
+            <a-button shape="circle" type="primary" icon="plus" style="margin-top: 8px"
+                      @click="addModule"></a-button>
           </a-col>
         </a-row>
 
@@ -23,16 +24,17 @@
           <template v-for="modApi in modApiList">
             <a-sub-menu :key="computeId('mod:',modApi.modId)">
             <span slot="title">
-              <a-icon type="mail"/>{{modApi.modName}}
-               <a-dropdown :trigger="['contextmenu']" style="position:relative;left:50%">
+               <a-dropdown :trigger="['contextmenu']">
                 <a-icon type="bars"/>
                 <span style="user-select: none"></span>
                 <a-menu slot="overlay" @click="clickModItem">
                   <a-menu-item :key="computeId('add:',modApi.modId)">Add Api</a-menu-item>
-                  <a-menu-item :key="computeId('aedit:',modApi.modId)">Edit This Module</a-menu-item>
+                  <a-menu-item :key="computeId('edit:',modApi.modId)">Edit This Module</a-menu-item>
                   <a-menu-item :key="computeId('delete:',modApi.modId)">Delete This Module</a-menu-item>
                 </a-menu>
               </a-dropdown>
+              {{modApi.modName}}
+
             </span>
               <template v-for="api in modApi.apiList">
                 <a-menu-item :key="computeId('api:',api.apiId)">
@@ -77,13 +79,14 @@
 
 </template>
 <script>
-    import http from "../util/http";
+    import http from "@/util/http.js";
 
     export default {
         name: "FrameWork",
         data()
         {
             let minHeight = document.documentElement.clientHeight * 0.88 + "px"
+            let localCurrentProjId = this.$store.state.currentProjId
             return {
                 collapsed: false,
                 contentSetting: {
@@ -92,8 +95,9 @@
                 modApiList: [],
                 moduleTitle: "Add Module",
                 moduleVisible: false,
+                currentProjId: localCurrentProjId,
                 module: {
-                    projId: this.$store.state.currentProjId,
+                    projId: localCurrentProjId,
                     modName: "",
                     modDesc: ""
                 },
@@ -101,9 +105,6 @@
                 moduleRules: {
                     modName: [
                         {required: true, message: 'please input module name', trigger: 'trigger'},
-                    ],
-                    modDesc: [
-                        {required: true, message: 'please input module description', trigger: 'blur'},
                     ],
                 }
             };
@@ -115,11 +116,13 @@
                 {
                     return name + "" + id
                 }
-            }
+            },
         },
         methods: {
             addModule()
             {
+                this.module.modName = ""
+                this.moduleTitle = "Add Module"
                 this.moduleVisible = true
             },
             handleModuleOk()
@@ -128,25 +131,28 @@
                 {
                     if (valid)
                     {
-                        if (this.modalTitle == "Add Module")
+                        if (this.moduleTitle == "Add Module")
                             this.module.modId = -1
-                        console.log(this.module)
+                        console.log("addOrEditModule", this.module)
                         let self = this
                         http.post("/module/addOrEditModule", this.module).then(res =>
                         {
+                            console.log(res.data)
                             if (res.data.code == 200)
                             {
-                                if (this.modalTitle == "Add Modle")
+                                let mod = res.data.data
+                                if (self.moduleTitle == "Add Module")
                                 {
                                     self.$message.success("add successfully")
-                                    // self.projectList.push(res.data.data)
+                                    self.modApiList.push({modName: mod.modName, modId: mod.modId, apiList: []})
                                 } else
                                 {
-                                    // let index = self.projectList.map(e => e.projId).indexOf(self.project.projId)
-                                    // self.projectList[index] = JSON.parse(JSON.stringify(self.project))
-                                    // self.$message.success("edit successfully")
+                                    console.log(self.modApiList)
+                                    let index = self.modApiList.map(m => m.modId).indexOf(self.module.modId)
+                                    self.modApiList[index].modName = JSON.parse(JSON.stringify(self.module)).modName
+                                    self.$message.success("edit successfully")
                                 }
-                                self.visible = false
+                                self.moduleVisible = false
                             }
                         })
                     } else
@@ -159,9 +165,60 @@
             {
                 console.log(val)
             },
+            addApi(modId)
+            {
+
+            },
+            editModule(modId)
+            {
+                let self = this
+                let params = {
+                    id: modId
+                }
+                console.log(params)
+                http.post("/module/getModule", params).then(res =>
+                {
+                    if (res.data.code == 200)
+                    {
+                        this.module = res.data.data
+                        self.moduleTitle = "Edit Module"
+                        self.moduleVisible = true
+                    }
+                })
+            },
+            deleteModule(modId)
+            {
+                let index = this.modApiList.map(m => m.modId).indexOf(modId)
+                let modName = this.modApiList[index].modName
+                this.$confirm('Do you really want to delete ' + modName + " ?", 'Tips', {
+                    confirmButtonText: 'OK',
+                    cancelButtonText: 'Cancel',
+                    type: 'warning'
+                }).then(() =>
+                {
+                    let self = this
+                    http.post("/module/deleteModule", {id: modId}).then(res =>
+                    {
+                        if (res.data.code == 200)
+                        {
+                            self.modApiList.splice(index, 1)
+                            self.$message.success('delete successfully!');
+                        }
+                    })
+
+                })
+            },
             clickModItem({key})
             {
-                console.log(key)
+                let array = key.split(":")
+                let op = array[0]
+                let modId = Number(array[1])
+                if (op == "edit")
+                    this.editModule(modId)
+                else if (op == "delete")
+                    this.deleteModule(modId)
+                else if (op == "add")
+                    this.addApi(modId)
             },
             clickApiItem({key})
             {
@@ -182,7 +239,7 @@
                 {
                     if (res.data.code == 200)
                     {
-                        console.log(res.data.data)
+                        console.log("self.modApiList", res.data.data)
                         self.modApiList = res.data.data;
                     }
                 });
@@ -190,7 +247,10 @@
         },
         mounted()
         {
-            this.getModApiList()
+            if (this.$store.state.currentProjId == -1)
+                this.$router.push("/")
+            else
+                this.getModApiList()
         }
     };
 </script>
