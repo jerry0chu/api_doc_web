@@ -14,11 +14,10 @@ export default {
   },
   checkApiName(rule, value, callback)
   {
-    console.log("checkModName", /[a-zA-Z/]+/.test(value))
     if (!value)
     {
       callback(new Error('please input module name'));
-    } else if (/[a-zA-Z/]+/.test(value) == false)
+    } else if (new RegExp("^/[a-zA-Z/]+\\w$").test(value) == false)
     {
       callback(new Error("eg:/user/getUser , /user/deleteUser"))
     } else

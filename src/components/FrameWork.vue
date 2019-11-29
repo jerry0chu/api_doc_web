@@ -2,7 +2,7 @@
   <div>
     <a-layout id="components-layout-demo-custom-trigger">
       <a-layout-sider :trigger="null" collapsible v-model="collapsed"
-                      style="max-width: 300px;min-width: 300px;width: 300px">
+                      style="max-width: 310px;min-width: 310px;width: 310px">
         <!--      <div class="logo"/>-->
         <a-row>
           <a-col :span="21">
@@ -38,8 +38,21 @@
             </span>
               <template v-for="api in modApi.apiList">
                 <a-menu-item :key="computeId('api:',api.apiId)">
-                  <a-icon type="pie-chart"/>
-                  <span>{{api.apiName}}</span>
+                  <!--                  <a-icon type="pie-chart"/>-->
+                  <a-row>
+                    <a-col :span="4">
+                      <template v-if="api.apiType=='GET'">
+                        <div style="color: #f723ff">GET</div>
+                      </template>
+                      <template v-if="api.apiType=='POST'">
+                        <div style="color: #4aff85">POST</div>
+                      </template>
+                    </a-col>
+                    <a-col>
+                      <span>{{api.apiName}}</span>
+                    </a-col>
+                  </a-row>
+
                 </a-menu-item>
               </template>
             </a-sub-menu>
@@ -81,8 +94,11 @@
         <el-form-item label="Api Name" prop="apiName">
           <el-input v-model="api.apiName"></el-input>
         </el-form-item>
-        <el-form-item label="Api Type" prop="apiType">
-          <el-input v-model="api.apiType"></el-input>
+        <el-form-item label="Api Type">
+          <el-radio-group v-model="api.apiType">
+            <el-radio-button label="GET"></el-radio-button>
+            <el-radio-button label="POST"></el-radio-button>
+          </el-radio-group>
         </el-form-item>
       </el-form>
     </a-modal>
@@ -108,6 +124,7 @@
                 moduleTitle: "Add Module",
                 moduleVisible: false,
                 currentProjId: localCurrentProjId,
+                currentModId: -1,
                 module: {
                     projId: localCurrentProjId,
                     modName: "",
@@ -121,7 +138,7 @@
                 },
                 api: {
                     apiName: "",
-                    apiType: ""
+                    apiType: "GET"
                 },
                 apiRules: {
                     apiName: [
@@ -142,10 +159,41 @@
             },
         },
         methods: {
-
             handleApiOk()
             {
-
+                this.$refs['apiRuleForm'].validate((valid) =>
+                {
+                    if (valid)
+                    {
+                        let self = this
+                        let params = {
+                            apiId: -1,
+                            modId: this.currentModId,
+                            apiName: this.api.apiName,
+                            apiType: this.api.apiType,
+                            success: "",
+                            failure: ""
+                        }
+                        http.post("/api/addOrEditApi", params).then(res =>
+                        {
+                            if (res.data.code == 200)
+                            {
+                                let api = res.data.data
+                                self.$message.success("add successfully")
+                                let index = self.modApiList.map(m => m.modId).indexOf(this.currentModId)
+                                self.modApiList[index].apiList.push({
+                                    apiId: api.apiId,
+                                    apiName: api.apiName,
+                                    apiType: api.apiType
+                                })
+                                self.apiVisible = false
+                            }
+                        })
+                    } else
+                    {
+                        return false;
+                    }
+                });
             },
             addModule()
             {
@@ -192,6 +240,7 @@
             },
             addApi(modId)
             {
+                this.currentModId = modId
                 this.apiVisible = true
             },
             editModule(modId)
@@ -263,6 +312,7 @@
                 {
                     if (res.data.code == 200)
                         self.modApiList = res.data.data;
+                    console.log(self.modApiList)
                 });
             }
         },
