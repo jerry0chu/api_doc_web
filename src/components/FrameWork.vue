@@ -16,7 +16,7 @@
         </a-row>
 
         <a-menu theme="dark" mode="inline" :defaultSelectedKeys="['-1']">
-          <a-menu-item key="-1">
+          <a-menu-item key="-1" @click="()=> this.$store.commit('setCurrentApiId',-1)">
             <a-icon type="home"/>
             <span>Home</span>
 
@@ -37,7 +37,7 @@
 
             </span>
               <template v-for="api in modApi.apiList">
-                <a-menu-item :key="computeId('api:',api.apiId)">
+                <a-menu-item :key="computeId('api:',api.apiId)" @click="handleMenuItemClick(modApi.modId,api)">
                   <!--                  <a-icon type="pie-chart"/>-->
                   <a-row>
                     <a-col :span="4">
@@ -73,8 +73,10 @@
         <a-layout-content
           :style="contentSetting"
         >
-          Content
-          {{this.$store.state.currentProjId}}
+
+          <keep-alive>
+            <component :is="changeContent"></component>
+          </keep-alive>
         </a-layout-content>
       </a-layout>
     </a-layout>
@@ -108,9 +110,12 @@
 <script>
     import http from "@/util/http.js";
     import check from "@/util/check.js";
+    import Home from '@/components/content/Home.vue'
+    import Api from "@/components/content/Api.vue"
 
     export default {
         name: "FrameWork",
+        components: {Home, Api},
         data()
         {
             let minHeight = document.documentElement.clientHeight * 0.88 + "px"
@@ -157,8 +162,20 @@
                     return name + "" + id
                 }
             },
+            changeContent()
+            {
+                let apiId = this.$store.state.currentApiId
+                if (apiId == -1)
+                    return 'Home'
+                else
+                    return "Api"
+            }
         },
         methods: {
+            handleMenuItemClick(modId, api)
+            {
+                this.$store.commit("setCurrentApiId", api.apiId)
+            },
             handleApiOk()
             {
                 this.$refs['apiRuleForm'].validate((valid) =>
@@ -293,10 +310,6 @@
                 else if (op == "add")
                     this.addApi(modId)
             },
-            clickApiItem({key})
-            {
-                console.log(key)
-            },
             gotToProject()
             {
                 this.$router.push("/")
@@ -312,7 +325,6 @@
                 {
                     if (res.data.code == 200)
                         self.modApiList = res.data.data;
-                    console.log(self.modApiList)
                 });
             }
         },
