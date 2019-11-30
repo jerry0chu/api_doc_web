@@ -5,7 +5,7 @@
     <a-col :span="18">
       <template v-for="pro in projectList">
         <a-col :span="8" style="margin-bottom: 20px">
-          <a-card hoverable style="width: 300px;background-color: #b1d3ff">
+          <a-card hoverable style="width: 300px;background-color: #fff5f5">
             <!--            #41d1ff-->
             <template class="ant-card-actions" slot="actions">
               <!--              <a-button type="primary" shape="circle" icon="folder"></a-button>-->
@@ -87,9 +87,9 @@
             },
             openProject(pro)
             {
-                this.$store.commit("setCurrentProjId",pro.projId)
-              this.$router.push("/framework")
-
+                this.$store.commit("setCurrentProjId", pro.projId)
+                this.$store.commit("setCurrentApiId", -1)
+                this.$router.push("/framework")
             },
             addProject()
             {
@@ -158,7 +158,7 @@
 
             },
         },
-        mounted()
+        beforeMount()
         {
             this.getProjectList()
         }

@@ -1,21 +1,23 @@
 <template>
   <div>
-    <a-row :gutter="16" type="flex" justify="center">
-      <a-col :span="5">
-        <a-statistic title="Module numbers" :value="modNums" style="color: #1890FF">
-          <template v-slot:suffix>
-            <a-icon type="appstore"/>
-          </template>
-        </a-statistic>
-      </a-col>
-      <a-col :span="5">
-        <a-statistic title="Api numbers" :value="apiNums" style="color: #f723ff">
-          <template v-slot:suffix>
-            <a-icon type="link"/>
-          </template>
-        </a-statistic>
-      </a-col>
-    </a-row>
+    <a-card size="small">
+      <a-row :gutter="16" type="flex" justify="center">
+        <a-col :span="5">
+          <a-statistic title="Module numbers" :value="modNums" style="color: #1890FF">
+            <template v-slot:suffix>
+              <a-icon type="appstore"/>
+            </template>
+          </a-statistic>
+        </a-col>
+        <a-col :span="5">
+          <a-statistic title="Api numbers" :value="apiNums" style="color: #f723ff">
+            <template v-slot:suffix>
+              <a-icon type="link"/>
+            </template>
+          </a-statistic>
+        </a-col>
+      </a-row>
+    </a-card>
   </div>
 </template>
 
@@ -33,12 +35,12 @@
                 apiNums: 0
             }
         },
-        watch:{
-          currentApiId(newV,oldV)
-          {
-              if(newV == -1)
-                  this.getModApiNums()
-          }
+        watch: {
+            currentApiId(newV, oldV)
+            {
+                if (newV == -1)
+                    this.getModApiNums()
+            }
         },
         computed: {
             currentApiId()
@@ -59,7 +61,6 @@
                         let array = res.data.data
                         this.modNums = array[0]
                         this.apiNums = array[1]
-                        console.log("getModApiNums")
                     }
                 })
             }

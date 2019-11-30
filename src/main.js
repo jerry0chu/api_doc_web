@@ -10,6 +10,8 @@ import store from './store'
 import router from './router'
 import 'ant-design-vue/dist/antd.css'
 import 'element-ui/lib/theme-chalk/index.css';
+
+
 Vue.use(Antd)
 Vue.use(ElementUI);
 

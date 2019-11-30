@@ -191,7 +191,7 @@
                             success: "",
                             failure: ""
                         }
-                        http.post("/api/addOrEditApi", params).then(res =>
+                        http.post("/api/addApi", params).then(res =>
                         {
                             if (res.data.code == 200)
                             {
@@ -328,7 +328,7 @@
                 });
             }
         },
-        mounted()
+        beforeMount()
         {
             if (this.$store.state.currentProjId == -1)
                 this.$router.push("/")
