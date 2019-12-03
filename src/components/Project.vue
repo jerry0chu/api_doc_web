@@ -124,14 +124,12 @@
             },
             handleOk(e)
             {
-                console.log(e);
                 this.$refs['projectRuleForm'].validate((valid) =>
                 {
                     if (valid)
                     {
                         if (this.modalTitle == "Add Project")
                             this.project.projId = -1
-                        console.log(this.project)
                         let self = this
                         http.post("/project/addOrEditProject", this.project).then(res =>
                         {

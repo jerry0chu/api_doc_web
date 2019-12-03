@@ -5,17 +5,27 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     currentProjId: -1,
-    currentApiId: -1
+    currentModId: -1,
+    currentApiId: -1,
+    deleteApiId: -1
   },
   mutations: {
     setCurrentProjId: (state, num) =>
     {
       state.currentProjId = num
     },
+    setCurrentModId: (state, num) =>
+    {
+      state.currentModId = num
+    },
     setCurrentApiId: (state, num) =>
     {
       state.currentApiId = num
-    }
+    },
+    setDeleteApiId: (state, num) =>
+    {
+      state.deleteApiId = num
+    },
   }
 })
 ;

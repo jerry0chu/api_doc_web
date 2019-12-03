@@ -26,8 +26,7 @@
               <a-icon type="bars"/>
             </a>
             <a-menu slot="overlay">
-              <a-menu-divider/>
-              <a-menu-item key="0">Delete This Api</a-menu-item>
+              <a-menu-item key="0" @click="deleteApi">Delete This Api</a-menu-item>
             </a-menu>
           </a-dropdown>
         </a-col>
@@ -277,6 +276,27 @@
                 }
                 console.log('It is not a string!')
             },
+            deleteApi()
+            {
+                let params = {
+                    id: this.currentApiId
+                }
+
+                this.$confirm('Do you really want to delete ' + this.apiName + " ?", 'Tips', {
+                    confirmButtonText: 'OK',
+                    cancelButtonText: 'Cancel',
+                    type: 'warning'
+                }).then(() =>
+                {
+                    let self = this
+                    http.post("/api/deleteApi", params).then(res =>
+                    {
+                        if (res.data.code == 200)
+                            self.$store.commit("setDeleteApiId", this.currentApiId)
+                    })
+
+                })
+            },
             successChange()
             {
                 let bool = this.isJSON(this.success)
@@ -284,7 +304,6 @@
                     this.successStatus = 'unsaved'
                 else
                     this.successStatus = 'error'
-                console.log(bool)
             },
             failureChange()
             {
@@ -376,7 +395,6 @@
                         self.apiType = apiInfo.apiType
                         self.success = apiInfo.success
                         self.failure = apiInfo.failure
-                        console.log(apiInfo)
                     }
                 })
             }

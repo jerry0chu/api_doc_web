@@ -169,11 +169,29 @@
                     return 'Home'
                 else
                     return "Api"
+            },
+            deleteApiId()
+            {
+                return this.$store.state.deleteApiId
+            }
+        },
+        watch: {
+            deleteApiId(newV, oldV)
+            {
+                if (newV != -1)
+                {
+                    let modId = this.$store.state.currentModId
+                    let index1 = this.modApiList.map(m => m.modId).indexOf(modId)
+                    let index2 = this.modApiList[index1].apiList.map(m => m.apiId).indexOf(newV)
+                    this.modApiList[index1].apiList.splice(index2, 1)
+                    this.$store.commit("setCurrentApiId", -1)
+                }
             }
         },
         methods: {
             handleMenuItemClick(modId, api)
             {
+                this.$store.commit("setCurrentModId", modId)
                 this.$store.commit("setCurrentApiId", api.apiId)
             },
             handleApiOk()
@@ -204,6 +222,7 @@
                                     apiType: api.apiType
                                 })
                                 self.apiVisible = false
+                                self.api.apiName = ""
                             }
                         })
                     } else
