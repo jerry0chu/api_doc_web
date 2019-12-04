@@ -192,6 +192,31 @@
         <codemirror v-model="failure" :options="editorOption" @change="failureChange"></codemirror>
       </template>
     </a-card>
+
+    <a-card size="small">
+      <a-row>
+        <a-col :span="4">
+          <a-tag color="#9041ff" style="font-size: 15px; ">Generate Code</a-tag>
+        </a-col>
+        <a-col :span="2">
+          <a-tooltip placement="top">
+            <template slot="title">
+              <span>click me to show code</span>
+            </template>
+            <a-icon type="code" :style="{ fontSize: '19px' }" @click="switchGenCode"/>
+          </a-tooltip>
+        </a-col>
+        <a-col :span="11">
+        </a-col>
+        <a-col :span="3">
+          <a-button size="small"  >Python Code</a-button>
+        </a-col>
+      </a-row>
+      <template v-if="showGenCode">
+        <codemirror v-model="genCode" :options="genCodeOption"></codemirror>
+      </template>
+    </a-card>
+
   </div>
 </template>
 
@@ -203,6 +228,8 @@
     require('codemirror/addon/hint/show-hint.js')
     require('codemirror/addon/hint/show-hint.css')
     require('codemirror/addon/hint/javascript-hint.js')
+
+    require('codemirror/mode/python/python')
 
     export default {
         name: "Api",
@@ -219,8 +246,11 @@
                 success: "",
                 failure: "",
 
+                genCode: "",
+
                 showSuccessCode: false,
                 showFailureCode: false,
+                showGenCode: false,
 
                 successStatus: '',
                 failureStatus: '',
@@ -232,6 +262,15 @@
                     lineNumbers: true,
                     lineWrapping: true,
                     viewportMargin: Infinity,
+                },
+                genCodeOption: {
+                    mode: {name: "javascript", json: true},
+                    tabSize: 2,
+                    smartIndent: true,
+                    lineNumbers: true,
+                    lineWrapping: true,
+                    viewportMargin: Infinity,
+                    readOnly: true,
                 }
             }
         },
@@ -321,6 +360,11 @@
                 else
                     this.saveColumn('failure', this.failure)
             },
+            switchGenCode()
+            {
+                let bool = this.showGenCode == true ? false : true
+                this.showGenCode = bool
+            },
             switchSuccessCode()
             {
                 let bool = this.showSuccessCode == true ? false : true
@@ -373,8 +417,7 @@
                             this.failureStatus = 'failure'
                     }
                 })
-            }
-            ,
+            },
             getApiInfo()
             {
                 let param = {
