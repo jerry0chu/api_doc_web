@@ -209,7 +209,7 @@
         <a-col :span="11">
         </a-col>
         <a-col :span="3">
-          <a-button size="small"  >Python Code</a-button>
+          <a-button size="small" @click="genPythonCode">Python Code</a-button>
         </a-col>
       </a-row>
       <template v-if="showGenCode">
@@ -221,232 +221,245 @@
 </template>
 
 <script>
-    import http from "@/util/http.js";
-    import {codemirror} from 'vue-codemirror-lite'
+  import http from "@/util/http.js";
+  import {codemirror} from 'vue-codemirror-lite'
 
-    require('codemirror/mode/javascript/javascript')
-    require('codemirror/addon/hint/show-hint.js')
-    require('codemirror/addon/hint/show-hint.css')
-    require('codemirror/addon/hint/javascript-hint.js')
+  require('codemirror/mode/javascript/javascript')
+  require('codemirror/addon/hint/show-hint.js')
+  require('codemirror/addon/hint/show-hint.css')
+  require('codemirror/addon/hint/javascript-hint.js')
 
-    require('codemirror/mode/python/python')
+  require('codemirror/mode/python/python')
 
-    export default {
-        name: "Api",
-        components: {
-            codemirror
+  export default {
+    name: "Api",
+    components: {
+      codemirror
+    },
+    data()
+    {
+      return {
+        paramTable: [],
+        modName: "",
+        apiName: "",
+        apiType: "",
+        success: "",
+        failure: "",
+
+        genCode: "",
+
+        showSuccessCode: false,
+        showFailureCode: false,
+        showGenCode: false,
+
+        successStatus: '',
+        failureStatus: '',
+
+        editorOption: {
+          mode: {name: "javascript", json: true},
+          tabSize: 2,
+          smartIndent: true,
+          lineNumbers: true,
+          lineWrapping: true,
+          viewportMargin: Infinity,
         },
-        data()
-        {
-            return {
-                paramTable: [],
-                modName: "",
-                apiName: "",
-                apiType: "",
-                success: "",
-                failure: "",
-
-                genCode: "",
-
-                showSuccessCode: false,
-                showFailureCode: false,
-                showGenCode: false,
-
-                successStatus: '',
-                failureStatus: '',
-
-                editorOption: {
-                    mode: {name: "javascript", json: true},
-                    tabSize: 2,
-                    smartIndent: true,
-                    lineNumbers: true,
-                    lineWrapping: true,
-                    viewportMargin: Infinity,
-                },
-                genCodeOption: {
-                    mode: {name: "javascript", json: true},
-                    tabSize: 2,
-                    smartIndent: true,
-                    lineNumbers: true,
-                    lineWrapping: true,
-                    viewportMargin: Infinity,
-                    readOnly: true,
-                }
-            }
-        },
-        computed: {
-            currentApiId()
-            {
-                return this.$store.state.currentApiId
-            }
-        },
-        watch: {
-            currentApiId(newV, oldV)
-            {
-                if (newV != -1)
-                {
-                    this.successStatus = ''
-                    this.failureStatus = ''
-                    this.getApiInfo()
-                }
-            }
-        },
-        methods: {
-            isJSON(str)
-            {
-                if (typeof str == 'string')
-                {
-                    try
-                    {
-                        var obj = JSON.parse(str);
-                        if (typeof obj == 'object' && obj)
-                        {
-                            return true;
-                        } else
-                        {
-                            return false;
-                        }
-
-                    } catch (e)
-                    {
-                        console.log('error：' + str + '!!!' + e);
-                        return false;
-                    }
-                }
-                console.log('It is not a string!')
-            },
-            deleteApi()
-            {
-                let params = {
-                    id: this.currentApiId
-                }
-
-                this.$confirm('Do you really want to delete ' + this.apiName + " ?", 'Tips', {
-                    confirmButtonText: 'OK',
-                    cancelButtonText: 'Cancel',
-                    type: 'warning'
-                }).then(() =>
-                {
-                    let self = this
-                    http.post("/api/deleteApi", params).then(res =>
-                    {
-                        if (res.data.code == 200)
-                            self.$store.commit("setDeleteApiId", this.currentApiId)
-                    })
-
-                })
-            },
-            successChange()
-            {
-                let bool = this.isJSON(this.success)
-                if (bool)
-                    this.successStatus = 'unsaved'
-                else
-                    this.successStatus = 'error'
-            },
-            failureChange()
-            {
-                let bool = this.isJSON(this.failure)
-                if (bool)
-                    this.failureStatus = 'unsaved'
-                else
-                    this.failureStatus = 'error'
-            },
-            saveCode(status)
-            {
-                if (status == 'success')
-                    this.saveColumn('success', this.success)
-                // 'failure'
-                else
-                    this.saveColumn('failure', this.failure)
-            },
-            switchGenCode()
-            {
-                let bool = this.showGenCode == true ? false : true
-                this.showGenCode = bool
-            },
-            switchSuccessCode()
-            {
-                let bool = this.showSuccessCode == true ? false : true
-                this.showSuccessCode = bool
-            },
-            switchFailureCode()
-            {
-                let bool = this.showFailureCode == true ? false : true
-                this.showFailureCode = bool
-            },
-            addParam()
-            {
-                this.paramTable.push({name: "", value: "", desc: "", editable: true})
-            },
-            handleParamEdit(index, row)
-            {
-                row.editable = row.editable == true ? false : true
-                if (row.name == "" || row.value == "")
-                    this.paramTable.splice(index, 1)
-                if (row.editable == false)
-                    this.saveColumn("params", JSON.stringify(this.paramTable))
-            },
-            handleParamDelete(index, row)
-            {
-                this.paramTable.splice(index, 1)
-                this.saveColumn("params", JSON.stringify(this.paramTable))
-            },
-            saveColumn(typename, content)
-            {
-                let param = {
-                    apiId: this.currentApiId,
-                    typename: typename,
-                    content: content
-
-                }
-                let self = this
-                http.post("/api/saveColumn", param).then(res =>
-                {
-                    if (res.data.code == 200)
-                    {
-                        if (typename == 'success')
-                            this.successStatus = 'success'
-                        else if (typename == 'failure')
-                            this.failureStatus = 'success'
-                    } else
-                    {
-                        if (typename == 'success')
-                            this.successStatus = 'failure'
-                        else if (typename == 'failure')
-                            this.failureStatus = 'failure'
-                    }
-                })
-            },
-            getApiInfo()
-            {
-                let param = {
-                    id: this.currentApiId
-                }
-                let self = this
-                http.post("/api/getApiInfo", param).then(res =>
-                {
-                    if (res.data.code == 200)
-                    {
-                        let apiInfo = res.data.data
-                        if (apiInfo.params)
-                            self.paramTable = JSON.parse(apiInfo.params)
-                        else
-                            self.paramTable = []
-                        self.modName = apiInfo.modName
-                        self.apiName = apiInfo.apiName
-                        self.apiType = apiInfo.apiType
-                        self.success = apiInfo.success
-                        self.failure = apiInfo.failure
-                    }
-                })
-            }
-        },
-        beforeMount()
-        {
-            this.getApiInfo()
+        genCodeOption: {
+          mode: {name: "javascript", json: true},
+          tabSize: 2,
+          smartIndent: true,
+          lineNumbers: true,
+          lineWrapping: true,
+          viewportMargin: Infinity,
+          readOnly: true,
         }
+      }
+    },
+    computed: {
+      currentApiId()
+      {
+        return this.$store.state.currentApiId
+      }
+    },
+    watch: {
+      currentApiId(newV, oldV)
+      {
+        if (newV != -1)
+        {
+          this.successStatus = ''
+          this.failureStatus = ''
+          this.getApiInfo()
+        }
+      }
+    },
+    methods: {
+      genPythonCode()
+      {
+        let param = {
+          id: this.currentApiId
+        }
+        http.post("/api/genPythonCode", param).then(res =>
+        {
+          if (res.data.code == 200)
+          {
+            this.genCode = res.data.data;
+          }
+        })
+      },
+      isJSON(str)
+      {
+        if (typeof str == 'string')
+        {
+          try
+          {
+            var obj = JSON.parse(str);
+            if (typeof obj == 'object' && obj)
+            {
+              return true;
+            } else
+            {
+              return false;
+            }
+
+          } catch (e)
+          {
+            console.log('error：' + str + '!!!' + e);
+            return false;
+          }
+        }
+        console.log('It is not a string!')
+      },
+      deleteApi()
+      {
+        let params = {
+          id: this.currentApiId
+        }
+
+        this.$confirm('Do you really want to delete ' + this.apiName + " ?", 'Tips', {
+          confirmButtonText: 'OK',
+          cancelButtonText: 'Cancel',
+          type: 'warning'
+        }).then(() =>
+        {
+          let self = this
+          http.post("/api/deleteApi", params).then(res =>
+          {
+            if (res.data.code == 200)
+              self.$store.commit("setDeleteApiId", this.currentApiId)
+          })
+
+        })
+      },
+      successChange()
+      {
+        let bool = this.isJSON(this.success)
+        if (bool)
+          this.successStatus = 'unsaved'
+        else
+          this.successStatus = 'error'
+      },
+      failureChange()
+      {
+        let bool = this.isJSON(this.failure)
+        if (bool)
+          this.failureStatus = 'unsaved'
+        else
+          this.failureStatus = 'error'
+      },
+      saveCode(status)
+      {
+        if (status == 'success')
+          this.saveColumn('success', this.success)
+        // 'failure'
+        else
+          this.saveColumn('failure', this.failure)
+      },
+      switchGenCode()
+      {
+        let bool = this.showGenCode == true ? false : true
+        this.showGenCode = bool
+      },
+      switchSuccessCode()
+      {
+        let bool = this.showSuccessCode == true ? false : true
+        this.showSuccessCode = bool
+      },
+      switchFailureCode()
+      {
+        let bool = this.showFailureCode == true ? false : true
+        this.showFailureCode = bool
+      },
+      addParam()
+      {
+        this.paramTable.push({name: "", value: "", desc: "", editable: true})
+      },
+      handleParamEdit(index, row)
+      {
+        row.editable = row.editable == true ? false : true
+        if (row.name == "" || row.value == "")
+          this.paramTable.splice(index, 1)
+        if (row.editable == false)
+          this.saveColumn("params", JSON.stringify(this.paramTable))
+      },
+      handleParamDelete(index, row)
+      {
+        this.paramTable.splice(index, 1)
+        this.saveColumn("params", JSON.stringify(this.paramTable))
+      },
+      saveColumn(typename, content)
+      {
+        let param = {
+          apiId: this.currentApiId,
+          typename: typename,
+          content: content
+
+        }
+        let self = this
+        http.post("/api/saveColumn", param).then(res =>
+        {
+          if (res.data.code == 200)
+          {
+            if (typename == 'success')
+              this.successStatus = 'success'
+            else if (typename == 'failure')
+              this.failureStatus = 'success'
+          } else
+          {
+            if (typename == 'success')
+              this.successStatus = 'failure'
+            else if (typename == 'failure')
+              this.failureStatus = 'failure'
+          }
+        })
+      },
+      getApiInfo()
+      {
+        let param = {
+          id: this.currentApiId
+        }
+        let self = this
+        http.post("/api/getApiInfo", param).then(res =>
+        {
+          if (res.data.code == 200)
+          {
+            let apiInfo = res.data.data
+            if (apiInfo.params)
+              self.paramTable = JSON.parse(apiInfo.params)
+            else
+              self.paramTable = []
+            self.modName = apiInfo.modName
+            self.apiName = apiInfo.apiName
+            self.apiType = apiInfo.apiType
+            self.success = apiInfo.success
+            self.failure = apiInfo.failure
+          }
+        })
+      }
+    },
+    beforeMount()
+    {
+      this.getApiInfo()
     }
+  }
 </script>
 
 <style scoped>
