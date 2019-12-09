@@ -18,58 +18,76 @@
         </a-col>
       </a-row>
     </a-card>
+    <div style="margin-top: 15px"></div>
+    <a-card size="small">
+      <a-row>
+        <a-col>
+          <h3>Project Tips:</h3>
+          <p>
+            <a-tag color="cyan">Mock Server Address :</a-tag>
+            {{hostname}}/mock/
+            <a-tag color="green">YourProjectName</a-tag>/
+            <a-tag color="purple">YourApiName</a-tag>
+          </p>
+          <p><a-tag color="cyan">Request Params :</a-tag> Content-Type = application/json</p>
+          <p><a-tag color="cyan">Response Data :</a-tag> Json</p>
+        </a-col>
+      </a-row>
+    </a-card>
   </div>
 </template>
 
 <script>
-    import http from "@/util/http.js";
+  import http from "@/util/http.js";
 
-    export default {
-        name: "Home",
-        data()
-        {
-            let projId = this.$store.state.currentProjId
-            return {
-                projId: projId,
-                modNums: 0,
-                apiNums: 0
-            }
-        },
-        watch: {
-            currentApiId(newV, oldV)
-            {
-                if (newV == -1)
-                    this.getModApiNums()
-            }
-        },
-        computed: {
-            currentApiId()
-            {
-                return this.$store.state.currentApiId
-            }
-        },
-        methods: {
-            getModApiNums()
-            {
-                let params = {
-                    id: this.projId
-                }
-                http.post("/api/getModApiNums", params).then(res =>
-                {
-                    if (res.data.code == 200)
-                    {
-                        let array = res.data.data
-                        this.modNums = array[0]
-                        this.apiNums = array[1]
-                    }
-                })
-            }
-        },
-        beforeMount()
-        {
-            this.getModApiNums()
+  export default {
+    name: "Home",
+    data()
+    {
+      let projId = this.$store.state.currentProjId
+      let ipPort = document.location.hostname + document.location.port;
+      return {
+        projId: projId,
+        modNums: 0,
+        apiNums: 0,
+        hostname: ipPort
+      }
+    },
+    watch: {
+      currentApiId(newV, oldV)
+      {
+        if (newV == -1)
+          this.getModApiNums()
+      }
+    },
+    computed: {
+      currentApiId()
+      {
+        return this.$store.state.currentApiId
+      }
+    },
+    methods: {
+      getModApiNums()
+      {
+        let params = {
+          id: this.projId
         }
+        http.post("/api/getModApiNums", params).then(res =>
+        {
+          if (res.data.code == 200)
+          {
+            let array = res.data.data
+            this.modNums = array[0]
+            this.apiNums = array[1]
+          }
+        })
+      }
+    },
+    beforeMount()
+    {
+      this.getModApiNums()
     }
+  }
 </script>
 
 <style scoped>

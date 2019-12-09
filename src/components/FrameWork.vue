@@ -224,6 +224,8 @@
                                 self.apiVisible = false
                                 self.api.apiName = ""
                             }
+                             else
+                              self.$message.error(res.data.msg)
                         })
                     } else
                     {
@@ -263,6 +265,8 @@
                                 }
                                 self.moduleVisible = false
                             }
+                            else
+                              self.$message.error(res.data.msg)
                         })
                     } else
                     {

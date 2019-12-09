@@ -50,117 +50,127 @@
 </template>
 
 <script>
-    import http from "@/util/http.js"
+  import http from "@/util/http.js"
 
-    export default {
-        name: "Project",
-        data()
-        {
-            return {
-                projectList: [],
-                visible: false,
-                modalTitle: "Add Project",
-                project: {
-                    projName: '',
-                    projDesc: '',
-                },
-                projectRules: {
-                    projName: [
-                        {required: true, message: 'please input project name', trigger: 'trigger'},
-                    ],
-                    projDesc: [
-                        {required: true, message: 'please input project description', trigger: 'blur'},
-                    ],
-                }
-            };
+  export default {
+    name: "Project",
+    data()
+    {
+      return {
+        projectList: [],
+        visible: false,
+        modalTitle: "Add Project",
+        project: {
+          projName: '',
+          projDesc: '',
         },
-        methods: {
-            getProjectList()
-            {
-                http.get("/project/getProjectList").then(res =>
-                {
-                    if (res.data.code == 200)
-                    {
-                        this.projectList = res.data.data
-                    }
-                });
-            },
-            openProject(pro)
-            {
-                this.$store.commit("setCurrentProjId", pro.projId)
-                this.$store.commit("setCurrentApiId", -1)
-                this.$router.push("/framework")
-            },
-            addProject()
-            {
-                this.modalTitle = "Add Project"
-                this.visible = true
-            },
-            editProject(pro)
-            {
-                this.modalTitle = "Edit Project"
-                this.project = JSON.parse(JSON.stringify(pro))
-                this.visible = true
-            },
-            handleCommand(command)
-            {
-                if (new RegExp("\\d+").test(command))
-                {
-                    let params = {
-                        id: command
-                    }
-                    let self = this
-                    http.post("/project/deleteProject", params).then(res =>
-                    {
-                        if (res.data.code == 200)
-                        {
-                            let index = self.projectList.map(e => e.projId).indexOf(command)
-                            self.projectList.splice(index, 1)
-                            self.$message.success("delete project successfully")
-                        } else
-                            self.$message.error("delete failed")
-                    })
-                }
-            },
-            handleOk(e)
-            {
-                this.$refs['projectRuleForm'].validate((valid) =>
-                {
-                    if (valid)
-                    {
-                        if (this.modalTitle == "Add Project")
-                            this.project.projId = -1
-                        let self = this
-                        http.post("/project/addOrEditProject", this.project).then(res =>
-                        {
-                            if (res.data.code == 200)
-                            {
-                                if (this.modalTitle == "Add Project")
-                                {
-                                    self.$message.success("add successfully")
-                                    self.projectList.push(res.data.data)
-                                } else
-                                {
-                                    let index = self.projectList.map(e => e.projId).indexOf(self.project.projId)
-                                    self.projectList[index] = JSON.parse(JSON.stringify(self.project))
-                                    self.$message.success("edit successfully")
-                                }
-                                self.visible = false
-                            }
-                        })
-                    } else
-                    {
-                        return false;
-                    }
-                });
-
-            },
-        },
-        beforeMount()
-        {
-            this.getProjectList()
+        projectRules: {
+          projName: [
+            {required: true, message: 'please input project name', trigger: 'trigger'},
+          ],
+          projDesc: [
+            {required: true, message: 'please input project description', trigger: 'blur'},
+          ],
         }
+      };
+    },
+    methods: {
+      getProjectList()
+      {
+        http.get("/project/getProjectList").then(res =>
+        {
+          if (res.data.code == 200)
+          {
+            this.projectList = res.data.data
+          }
+        });
+      },
+      openProject(pro)
+      {
+        this.$store.commit("setCurrentProjId", pro.projId)
+        this.$store.commit("setCurrentApiId", -1)
+        this.$router.push("/framework")
+      },
+      addProject()
+      {
+        this.modalTitle = "Add Project"
+        this.visible = true
+      },
+      editProject(pro)
+      {
+        this.modalTitle = "Edit Project"
+        this.project = JSON.parse(JSON.stringify(pro))
+        this.visible = true
+      },
+      handleCommand(command)
+      {
+        if (new RegExp("\\d+").test(command))
+        {
+          let params = {
+            id: command
+          }
+          let index = this.projectList.map(p => p.projId).indexOf(command)
+          let projName = this.projectList[index].projName
+          this.$confirm('Do you really want to delete ' + projName + " ?", 'Tips', {
+            confirmButtonText: 'OK',
+            cancelButtonText: 'Cancel',
+            type: 'warning'
+          }).then(() =>
+          {
+            let self = this
+            http.post("/project/deleteProject", params).then(res =>
+            {
+              if (res.data.code == 200)
+              {
+                let index = self.projectList.map(e => e.projId).indexOf(command)
+                self.projectList.splice(index, 1)
+                self.$message.success("delete project successfully")
+              } else
+                self.$message.error("delete failed")
+            })
+          })
+        }
+      },
+      handleOk(e)
+      {
+        this.$refs['projectRuleForm'].validate((valid) =>
+        {
+          if (valid)
+          {
+            if (this.modalTitle == "Add Project")
+              this.project.projId = -1
+            let self = this
+            http.post("/project/addOrEditProject", this.project).then(res =>
+            {
+              if (res.data.code == 200)
+              {
+                if (this.modalTitle == "Add Project")
+                {
+                  self.$message.success("add successfully")
+                  self.projectList.push(res.data.data)
+                } else
+                {
+                  let index = self.projectList.map(e => e.projId).indexOf(self.project.projId)
+                  self.projectList[index] = JSON.parse(JSON.stringify(self.project))
+                  self.$message.success("edit successfully")
+                }
+                self.visible = false
+              } else
+                self.$message.error(res.data.msg)
+            })
+          } else
+          {
+            return false;
+          }
+        });
+
+      },
+    },
+    beforeMount()
+    {
+      this.getProjectList()
     }
+  }
 </script>
 
 <style scoped>
