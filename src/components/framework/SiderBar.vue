@@ -61,19 +61,11 @@
       </a-layout-sider>
       <a-layout>
         <a-layout-header style="background: #fff; padding:0px">
-          <a-row :gutter="16">
-            <a-col :span="2">
-              <img src="~@/assets/api.png" width="60px" style="margin-left: 20px"/>
-            </a-col>
-            <a-col :span="4">
-              <a-button @click="gotToProject" style="margin-left: 20px">Project Home</a-button>
-            </a-col>
-          </a-row>
+          <MyHeader></MyHeader>
         </a-layout-header>
         <a-layout-content
           :style="contentSetting"
         >
-
           <keep-alive>
             <component :is="changeContent"></component>
           </keep-alive>
@@ -112,10 +104,11 @@
   import check from "@/util/check.js";
   import Home from '@/components/content/Home.vue'
   import Api from "@/components/content/Api.vue"
+  import MyHeader from "@/components/framework/MyHeader.vue";
 
   export default {
     name: "FrameWork",
-    components: {Home, Api},
+    components: {Home, Api,MyHeader},
     data()
     {
       let minHeight = document.documentElement.clientHeight * 0.88 + "px"
@@ -330,7 +323,7 @@
       {
         console.log(val)
       },
-      addApi(modId)
+      showApiModal(modId)
       {
         this.currentModId = modId
         this.apiVisible = true
@@ -383,12 +376,9 @@
         else if (op == "delete")
           this.deleteModule(modId)
         else if (op == "add")
-          this.addApi(modId)
+          this.showApiModal(modId)
       },
-      gotToProject()
-      {
-        this.$router.push("/")
-      },
+
       getModApiList()
       {
         let projId = this.$store.state.currentProjId

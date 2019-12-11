@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import FrameWork from '@/components/FrameWork'
+import FrameWork from '@/components/framework/SiderBar.vue'
 import Project from '@/components/Project.vue'
 Vue.use(Router)
 
