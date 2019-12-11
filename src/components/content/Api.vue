@@ -26,7 +26,8 @@
               <a-icon type="bars"/>
             </a>
             <a-menu slot="overlay">
-              <a-menu-item key="0" @click="deleteApi">Delete This Api</a-menu-item>
+              <a-menu-item key="0" @click="editApi">Edit This Api</a-menu-item>
+              <a-menu-item key="1" @click="deleteApi">Delete This Api</a-menu-item>
             </a-menu>
           </a-dropdown>
         </a-col>
@@ -327,6 +328,11 @@
           }
         }
         console.log('It is not a string!')
+      },
+      editApi()
+      {
+        console.log("editApi")
+        this.$store.commit("setIsEditApi", true)
       },
       deleteApi()
       {

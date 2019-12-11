@@ -4,7 +4,7 @@ export default {
     if (!value)
     {
       callback(new Error('please input module name'));
-    } else if (/[a-z]+/.test(value) == false)
+    } else if (/^[a-z]+$/.test(value) == false)
     {
       callback(new Error("module name should be  letter with lower case."))
     } else

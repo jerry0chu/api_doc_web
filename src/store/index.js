@@ -7,7 +7,8 @@ export default new Vuex.Store({
     currentProjId: -1,
     currentModId: -1,
     currentApiId: -1,
-    deleteApiId: -1
+    deleteApiId: -1,
+    isEditApi: false
   },
   mutations: {
     setCurrentProjId: (state, num) =>
@@ -26,6 +27,10 @@ export default new Vuex.Store({
     {
       state.deleteApiId = num
     },
+    setIsEditApi: (state, bool) =>
+    {
+      state.isEditApi = bool
+    }
   }
 })
 ;
