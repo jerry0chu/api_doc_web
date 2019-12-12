@@ -38,6 +38,23 @@
             <a-tag color="cyan">Response Data :</a-tag>
             Json
           </p>
+          <p>
+            <a-tag color="cyan">Real Server Address:</a-tag>
+            <template v-if="isEdited==false">
+              <el-input v-model="inputRealServerAddress" placeholder="eg: http://localhost:5000/" size="small"
+                        style="width: 300px"></el-input>
+              <a-button type="primary" @click="saveProjectConf" size="small">Save</a-button>
+            </template>
+            <template v-else>
+              <strong>{{inputRealServerAddress}}</strong>
+              <template v-if="inputRealServerAddress==''">
+                <a-button type="primary" @click="isEdited=false" size="small">Add</a-button>
+              </template>
+              <template v-else>
+                <a-button type="primary" @click="isEdited=false" size="small">Edit</a-button>
+              </template>
+            </template>
+          </p>
         </a-col>
       </a-row>
     </a-card>
@@ -45,7 +62,7 @@
     <a-card size="small">
       <a-row>
         <a-col>
-          <h4 >Latest Add Or Edit Api (Top 10)</h4>
+          <h4>Latest Add Or Edit Api (Top 10)</h4>
         </a-col>
       </a-row>
     </a-card>
@@ -65,7 +82,10 @@
         projId: projId,
         modNums: 0,
         apiNums: 0,
-        hostname: ipPort
+        hostname: ipPort,
+        isEdited: false,
+        inputRealServerAddress: "",
+        conf: ""
       }
     },
     watch: {
@@ -96,11 +116,46 @@
             this.apiNums = array[1]
           }
         })
+      },
+      getRealServerAddress()
+      {
+        let param = {
+          id: this.projId
+        }
+        let self = this
+        http.post("/project/getProjectConf", param).then(res =>
+        {
+          if (res.data.code == 200)
+          {
+            let conf = res.data.data
+            self.inputRealServerAddress = conf
+            self.isEdited = true
+            console.log(conf)
+          }
+        })
+      },
+      saveProjectConf()
+      {
+        let param = {
+          projId: this.projId,
+          conf: this.inputRealServerAddress
+        }
+        let self = this
+        http.post("/project/saveProjectConf", param).then(res =>
+        {
+          if (res.data.code == 200)
+          {
+            this.isEdited = true
+          }
+        })
       }
+
     },
     beforeMount()
     {
       this.getModApiNums()
+      this.getRealServerAddress()
+
     }
   }
 </script>
