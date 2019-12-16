@@ -14,6 +14,12 @@
     <a-modal title="Choose Your Framework" :width="650" v-model="downloadVisible" :footer="null">
       <a-row>
         <a-col :span="8">
+          <a-button type="primary" round icon="download" @click="handleDownloadClick('pdf')">export PDF</a-button>
+        </a-col>
+      </a-row>
+      <a-divider/>
+      <a-row>
+        <a-col :span="8">
           <a-button type="primary" round icon="download" @click="handleDownloadClick('falsk')">Flask Project</a-button>
         </a-col>
         <a-col :span="8">

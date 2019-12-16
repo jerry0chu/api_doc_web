@@ -24,6 +24,10 @@
         <a-col>
           <h4>Project Tips:</h4>
           <p>
+            <a-tag color="cyan">Request Params recommendation</a-tag>
+            When the request has parameters, use POST, otherwise use GET
+          </p>
+          <p>
             <a-tag color="cyan">Mock Server Address :</a-tag>
             {{hostname}}/mock/
             <a-tag color="green">YourProjectName</a-tag>
@@ -41,7 +45,7 @@
           <p>
             <a-tag color="cyan">Real Server Address:</a-tag>
             <template v-if="isEdited==false">
-              <el-input v-model="inputRealServerAddress" placeholder="eg: http://localhost:5000/" size="small"
+              <el-input v-model="inputRealServerAddress" placeholder="eg: http://localhost:5000" size="small"
                         style="width: 300px"></el-input>
               <a-button type="primary" @click="saveProjectConf" size="small">Save</a-button>
             </template>
@@ -141,13 +145,20 @@
           conf: this.inputRealServerAddress
         }
         let self = this
-        http.post("/project/saveProjectConf", param).then(res =>
+        // https://localhost:5000
+        if (/(http|https):\/\/([\w.]+\/?)\S+/.test(this.inputRealServerAddress))
         {
-          if (res.data.code == 200)
+          http.post("/project/saveProjectConf", param).then(res =>
           {
-            this.isEdited = true
-          }
-        })
+            if (res.data.code == 200)
+            {
+              self.isEdited = true
+            }
+          })
+        }
+        else
+          self.$message.error("server address format error")
+
       }
 
     },

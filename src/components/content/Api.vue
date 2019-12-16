@@ -20,6 +20,9 @@
         <a-col :span="2">
           <div class="fontclass">{{apiType}}</div>
         </a-col>
+        <a-col :span="1">
+          <a-button type="link" shape="circle" size="small" icon="play-circle" @click="runApi"></a-button>
+        </a-col>
         <a-col :span="2">
           <a-dropdown :trigger="['click']">
             <a class="ant-dropdown-link" href="#">
@@ -27,89 +30,93 @@
             </a>
             <a-menu slot="overlay">
               <a-menu-item key="0" @click="editApi">Edit This Api</a-menu-item>
-              <a-menu-item key="1" @click="deleteApi">Delete This Api</a-menu-item>
+<!--              <a-menu-item key="1" @click="runApi">Run This Api</a-menu-item>-->
+              <a-menu-item key="2" @click="deleteApi">Delete This Api</a-menu-item>
             </a-menu>
           </a-dropdown>
         </a-col>
       </a-row>
     </a-card>
-    <a-card size="small">
-      <a-row type="flex" justify="center">
-        <a-col :span="24">
-          <el-table
-            :data="paramTable"
-            style="width: 100%"
-            size="mini"
-            border
-            stripe
-            empty-text="No data"
-          >
-            <el-table-column
-              label="Param Name"
-              width="200">
-              <template slot-scope="scope">
-                <template v-if="scope.row.editable">
-                  <el-input v-model="scope.row.name"></el-input>
-                </template>
-                <template v-else>
-                  {{ scope.row.name }}
-                </template>
-              </template>
-            </el-table-column>
-            <el-table-column
-              label="Param Value"
-              width="240">
-              <template slot-scope="scope">
-                <template v-if="scope.row.editable">
-                  <el-input v-model="scope.row.value"></el-input>
-                </template>
-                <template v-else>
-                  {{ scope.row.value }}
-                </template>
-              </template>
-            </el-table-column>
-            <el-table-column
-              label="Param Desc"
+    <template v-if="apiType=='POST'">
+      <a-card size="small">
+        <a-row type="flex" justify="center">
+          <a-col :span="24">
+            <el-table
+              :data="paramTable"
+              style="width: 100%"
+              size="mini"
+              border
+              stripe
+              empty-text="No data"
             >
-              <template slot-scope="scope">
-                <template v-if="scope.row.editable">
-                  <el-input v-model="scope.row.desc"></el-input>
-                </template>
-                <template v-else>
-                  {{ scope.row.desc }}
-                </template>
-              </template>
-            </el-table-column>
-            <el-table-column label="Operation" width="200">
-              <template slot-scope="scope">
-                <el-button
-                  size="mini"
-                  @click="handleParamEdit(scope.$index, scope.row)">
+              <el-table-column
+                label="Param Name"
+                width="200">
+                <template slot-scope="scope">
                   <template v-if="scope.row.editable">
-                    Complete
+                    <el-input v-model="scope.row.name"></el-input>
                   </template>
                   <template v-else>
-                    Edit
+                    {{ scope.row.name }}
                   </template>
-                </el-button>
-                <el-button
-                  size="mini"
-                  type="danger"
-                  @click="handleParamDelete(scope.$index, scope.row)">Delete
-                </el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </a-col>
-      </a-row>
-      <a-row type="flex" justify="center">
-        <a-col :span="1">
-          <a-tag color="#108ee9" @click="addParam">
-            <a-icon type="plus"/>
-          </a-tag>
-        </a-col>
-      </a-row>
-    </a-card>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="Param Value"
+                width="240">
+                <template slot-scope="scope">
+                  <template v-if="scope.row.editable">
+                    <el-input v-model="scope.row.value"></el-input>
+                  </template>
+                  <template v-else>
+                    {{ scope.row.value }}
+                  </template>
+                </template>
+              </el-table-column>
+              <el-table-column
+                label="Param Desc"
+              >
+                <template slot-scope="scope">
+                  <template v-if="scope.row.editable">
+                    <el-input v-model="scope.row.desc"></el-input>
+                  </template>
+                  <template v-else>
+                    {{ scope.row.desc }}
+                  </template>
+                </template>
+              </el-table-column>
+              <el-table-column label="Operation" width="200">
+                <template slot-scope="scope">
+                  <el-button
+                    size="mini"
+                    @click="handleParamEdit(scope.$index, scope.row)">
+                    <template v-if="scope.row.editable">
+                      Complete
+                    </template>
+                    <template v-else>
+                      Edit
+                    </template>
+                  </el-button>
+                  <el-button
+                    size="mini"
+                    type="danger"
+                    @click="handleParamDelete(scope.$index, scope.row)">Delete
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </a-col>
+        </a-row>
+        <a-row type="flex" justify="center">
+          <a-col :span="1">
+            <a-tag color="#108ee9" @click="addParam">
+              <a-icon type="plus"/>
+            </a-tag>
+          </a-col>
+        </a-row>
+      </a-card>
+    </template>
+
     <a-card size="small">
       <a-row>
         <a-col :span="4">
@@ -217,13 +224,14 @@
         <codemirror v-model="genCode" :options="genCodeOption"></codemirror>
       </template>
     </a-card>
-
+    <RunModal :runVisible.sync="runVisible" @closeRunModal="closeMyRunModal"></RunModal>
   </div>
 </template>
 
 <script>
   import http from "@/util/http.js";
   import {codemirror} from 'vue-codemirror-lite'
+  import RunModal from '@/components/content/RunModal.vue'
 
   require('codemirror/mode/javascript/javascript')
   require('codemirror/addon/hint/show-hint.js')
@@ -235,7 +243,8 @@
   export default {
     name: "Api",
     components: {
-      codemirror
+      codemirror,
+      RunModal
     },
     data()
     {
@@ -272,7 +281,8 @@
           lineWrapping: true,
           viewportMargin: Infinity,
           readOnly: true,
-        }
+        },
+        runVisible: false,
       }
     },
     computed: {
@@ -293,6 +303,12 @@
       }
     },
     methods: {
+      closeMyRunModal(val)
+      {
+        this.runVisible = val
+        console.log("closeMyRunModal", val)
+
+      },
       genPythonCode()
       {
         let param = {
@@ -329,9 +345,13 @@
         }
         console.log('It is not a string!')
       },
+      runApi()
+      {
+        console.log("runApi")
+        this.runVisible = true
+      },
       editApi()
       {
-        console.log("editApi")
         this.$store.commit("setIsEditApi", true)
       },
       deleteApi()
@@ -357,6 +377,7 @@
       },
       successChange()
       {
+        console.log(this.success)
         let bool = this.isJSON(this.success)
         if (bool)
           this.successStatus = 'unsaved'
@@ -413,6 +434,7 @@
       },
       saveColumn(typename, content)
       {
+        console.log("saveColumn", typename, content)
         let param = {
           apiId: this.currentApiId,
           typename: typename,
@@ -437,6 +459,13 @@
           }
         })
       },
+      transferText(value)
+      {
+        if (!value)
+          return ''
+        else
+          return value
+      },
       getApiInfo()
       {
         let param = {
@@ -455,8 +484,8 @@
             self.modName = apiInfo.modName
             self.apiName = apiInfo.apiName
             self.apiType = apiInfo.apiType
-            self.success = apiInfo.success
-            self.failure = apiInfo.failure
+            self.success = this.transferText(apiInfo.success)
+            self.failure = this.transferText(apiInfo.failure)
           }
         })
       }
