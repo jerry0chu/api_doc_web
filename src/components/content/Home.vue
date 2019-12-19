@@ -57,6 +57,7 @@
               <template v-else>
                 <a-button type="primary" @click="isEdited=false" size="small">Edit</a-button>
               </template>
+              <div style="font-size: 6px;display: inline;color: gray">Do not end up with /</div>
             </template>
           </p>
         </a-col>
@@ -146,7 +147,7 @@
         }
         let self = this
         // https://localhost:5000
-        if (/(http|https):\/\/([\w.]+\/?)\S+/.test(this.inputRealServerAddress))
+        if (/(http|https):\/\/([\w.]+\/?)\S+[^/]$/.test(this.inputRealServerAddress))
         {
           http.post("/project/saveProjectConf", param).then(res =>
           {
@@ -155,8 +156,7 @@
               self.isEdited = true
             }
           })
-        }
-        else
+        } else
           self.$message.error("server address format error")
 
       }

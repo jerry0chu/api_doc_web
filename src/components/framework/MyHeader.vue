@@ -36,6 +36,8 @@
 </template>
 
 <script>
+  import http from "@/util/http.js";
+
   export default {
     name: "myheader",
     data()
@@ -49,9 +51,54 @@
       {
         this.$router.push("/")
       },
-      handleDownloadClick(projectType)
+      download(address, requestList = [])
       {
-        console.log("hello woerl", projectType)
+        let form = document.createElement("form");
+        let access_token = "1756467474";
+        form.setAttribute("style",
+          "display:none");
+        form.setAttribute("method", "get");
+        let params = {};
+        params.Authorization = access_token;
+        form.setAttribute("header",
+          params);
+
+        for (let i = 0; i < requestList.length; i++)
+        {
+          let input = document.createElement('input');
+          input.setAttribute('type', 'hidden');
+          input.setAttribute('name', requestList[i].key);
+          input.setAttribute('value', requestList[i].value);
+          form.append(input);
+        }
+
+        // 设置 key value 传值
+        // input.setAttribute('name', key);
+        // input.setAttribute('value', value);
+        form.setAttribute("action",
+          address  // /web/file/fileDownload   /web/contract/downloadContract
+        );
+        form.setAttribute("target", "_blank");
+        let body = document.createElement("body");
+        body.setAttribute("style", "display:none");
+        document.body.appendChild(form);
+        form.submit();
+        form.remove();
+      },
+      handleDownloadClick(typename)
+      {
+        console.log("hello woerl", typename)
+        let requestList = [
+          {
+            key: "projId",
+            value: this.$store.state.currentProjId
+          },
+          {
+            key: "typename",
+            value: typename
+          },
+        ]
+        this.download('/project/download', requestList)
         this.downloadVisible = false
       }
     }
