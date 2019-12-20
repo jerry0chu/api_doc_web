@@ -20,7 +20,7 @@
       <a-divider/>
       <a-row>
         <a-col :span="8">
-          <a-button type="primary" round icon="download" @click="handleDownloadClick('falsk')">Flask Project</a-button>
+          <a-button type="primary" round icon="download" @click="handleDownloadClick('flask')">Flask Project</a-button>
         </a-col>
         <a-col :span="8">
           <a-button type="primary" round icon="download" @click="handleDownloadClick('springboot')">SpringBoot Project
