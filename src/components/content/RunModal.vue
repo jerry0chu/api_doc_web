@@ -65,7 +65,6 @@
         if (newV == true)
         {
           this.getRunApiInfo()
-          console.log("runVisible", newV, this.currentApiId)
         }
       }
     },
@@ -90,7 +89,6 @@
             this.original = val.original
             this.real = val.real
           }
-          console.log(res.data.data)
         })
       }
     },

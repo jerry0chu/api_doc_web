@@ -87,7 +87,6 @@
       },
       handleDownloadClick(typename)
       {
-        console.log("hello woerl", typename)
         let requestList = [
           {
             key: "projId",
@@ -98,7 +97,7 @@
             value: typename
           },
         ]
-        this.download('/project/download', requestList)
+        this.download('/apidoc/project/download', requestList)
         this.downloadVisible = false
       }
     }

@@ -306,7 +306,6 @@
       closeMyRunModal(val)
       {
         this.runVisible = val
-        console.log("closeMyRunModal", val)
 
       },
       genPythonCode()
@@ -347,7 +346,6 @@
       },
       runApi()
       {
-        console.log("runApi")
         this.runVisible = true
       },
       editApi()
@@ -377,7 +375,6 @@
       },
       successChange()
       {
-        console.log(this.success)
         let bool = this.isJSON(this.success)
         if (bool)
           this.successStatus = 'unsaved'
@@ -434,7 +431,6 @@
       },
       saveColumn(typename, content)
       {
-        console.log("saveColumn", typename, content)
         let param = {
           apiId: this.currentApiId,
           typename: typename,

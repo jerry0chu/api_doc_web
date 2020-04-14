@@ -108,7 +108,7 @@
 
   export default {
     name: "FrameWork",
-    components: {Home, Api,MyHeader},
+    components: {Home, Api, MyHeader},
     data()
     {
       let minHeight = document.documentElement.clientHeight * 0.88 + "px"
@@ -118,6 +118,7 @@
         contentSetting: {
           margin: '15px 10px', padding: '20px', background: '#fff', minHeight: minHeight
         },
+        originalModApiList: [],
         modApiList: [],
         moduleTitle: "Add Module",
         moduleVisible: false,
@@ -193,7 +194,6 @@
       {
         if (newV == true)
         {
-          console.log(newV)
           this.apiTitle = "Edit Api"
           this.apiVisible = true
           let modId = this.$store.state.currentModId
@@ -202,7 +202,6 @@
           let index2 = this.modApiList[index1].apiList.map(m => m.apiId).indexOf(apiId)
           let api = this.modApiList[index1].apiList[index2]
           this.api = api
-          console.log(api)
         }
       }
     },
@@ -321,7 +320,31 @@
       },
       onSearch(val)
       {
-        console.log(val)
+        let newModApiList = []
+        this.originalModApiList.map(mod =>
+        {
+          newModApiList.push({
+            modName: mod.modName,
+            modId: mod.modId,
+            apiList: []
+          })
+          let found = -1
+          let index = newModApiList.length - 1
+          mod.apiList.map(api =>
+          {
+            if (api.apiName.indexOf(val) != -1)
+            {
+              found = 1
+              newModApiList[index].apiList.push(api)
+            }
+          })
+          if (found == -1)
+            newModApiList.splice(index, 1)
+        })
+        if (val !== "")
+          this.modApiList = newModApiList
+        else
+          this.modApiList = this.originalModApiList
       },
       showApiModal(modId)
       {
@@ -389,7 +412,10 @@
         http.post("/module/getModApi", params).then(res =>
         {
           if (res.data.code == 200)
+          {
             self.modApiList = res.data.data;
+            self.originalModApiList = JSON.parse(JSON.stringify(self.modApiList))
+          }
         });
       }
     },

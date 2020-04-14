@@ -1,5 +1,11 @@
 import axios from 'axios'
 import { message } from 'ant-design-vue';
+
+// prod
+// let prefix=""
+// build
+let prefix="/"
+
 axios.interceptors.request.use(config =>
 {
   return config
@@ -47,7 +53,7 @@ export default {
   {
     return axios({
       method: 'post',
-      //baseURL: 'http://127.0.0.1:5000',
+      baseURL: prefix,
       url,
       data: JSON.stringify(data),
       timeout: 10000,
@@ -71,7 +77,7 @@ export default {
   {
     return axios({
       method: 'get',
-      // baseURL: '/',
+      baseURL: prefix,
       url,
       params, // get 请求时带的参数
       timeout: 10000,

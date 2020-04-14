@@ -82,7 +82,7 @@
     data()
     {
       let projId = this.$store.state.currentProjId
-      let ipPort = document.location.hostname + document.location.port;
+      let ipPort = document.location.hostname +":"+ document.location.port;
       return {
         projId: projId,
         modNums: 0,
@@ -135,7 +135,6 @@
             let conf = res.data.data
             self.inputRealServerAddress = conf
             self.isEdited = true
-            console.log(conf)
           }
         })
       },

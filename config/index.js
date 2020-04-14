@@ -13,6 +13,9 @@ module.exports = {
     proxyTable: {
       // proxy all requests starting with /api to jsonplaceholder
       '/': {
+        // target: 'http://localhost:8080/apidoc',
+        // target: 'http://47.104.246.188:8080/apidoc',
+
         target: 'http://localhost:8080',
         changeOrigin: true,
         pathRewrite: {
@@ -52,7 +55,7 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsPublicPath: '/apidoc/',
 
     /**
      * Source Maps
